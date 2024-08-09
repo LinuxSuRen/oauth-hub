@@ -34,6 +34,10 @@ func GetUser(token string) *UserInfo {
 	return accessToken[token]
 }
 
+func SetUser(token string, userInfo *UserInfo) {
+	accessToken[token] = userInfo
+}
+
 type auth struct {
 	provider      OAuthProvider
 	config        oauth2.Config
@@ -84,10 +88,10 @@ func (a *auth) getUserInfo(w http.ResponseWriter, r *http.Request, token *oauth2
 		return
 	}
 
-	accessToken[token.AccessToken] = nil
+	SetUser(token.AccessToken, nil)
 	// get userInfo, save it to session
 	if userInfo, err := GetUserInfo(a.provider, token.AccessToken, a.skipTlsVerify); err == nil {
-		accessToken[token.AccessToken] = userInfo
+		SetUser(token.AccessToken, userInfo)
 		log.Printf("%s has login\n", userInfo.Name)
 	} else {
 		log.Printf("failed to get userinfo: %v\n", err)
